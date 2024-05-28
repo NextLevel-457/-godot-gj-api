@@ -3,25 +3,25 @@ extends HTTPRequest
 # GameJolt Godot plugin by Ackens https://github.com/ackens/-godot-gj-api
 # GameJolt API index page https://gamejolt.com/game-api/doc
 
-const BASE_GAMEJOLT_API_URL:String = 'https://api.gamejolt.com/api/game/v1_2'
+const BASE_GAMEJOLT_API_URL: String = 'https://api.gamejolt.com/api/game/v1_2'
 
-export(String) var private_key:String
-export(String) var game_id:String
-export(bool) var auto_batch := true #Merge queued requests in one batch
-export(bool) var verbose:bool = false
+export var private_key: String
+export var game_id: String
+export var auto_batch := true # Merge queued requests in one batch
+export var verbose: bool = false
 
 signal gamejolt_request_completed(type,message)
 
-var username_cache:String
-var token_cache:String
-var busy:bool = false
-var queue:Array = []
-var current_request:Request
+var username_cache: String
+var token_cache :String
+var busy: bool = false
+var queue: Array = []
+var current_request: Request
 
 class Request:
-	var type:String
-	var parameters:Dictionary
-	var sub_types:Array
+	var type: String
+	var parameters: Dictionary
+	var sub_types: Array
 	
 	func _init(new_type:String,new_parameters:Dictionary,new_sub_types:Array = []):
 		type = new_type
