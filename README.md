@@ -1,6 +1,11 @@
 # GameJolt API plugin for Godot Engine.
 ![Screenshot](https://github.com/deakcor/godot-gamejolt-api-demo/blob/main/example/fond.png)
 ## About
+
+**Forked from the original, you can find it [here](https://github.com/deakcor/-godot-gj-api)**
+
+I have no idea what I'm doing, I'm just porting this to the best of my ability. All credit goes to the original creator!
+
 **Features**
 * Use GameJolt API in version 1.2
 * Godot Engine plugin
@@ -8,7 +13,7 @@
 * Allow to verbose mode to see direct communication
 * URLs are percent encoded
 * Use HTTPS communication with GameJolt API
-* For Godot 3+
+* For Godot 4+
 * One common singal on end of request
 * Many point of checking response
 
