@@ -5,10 +5,10 @@ extends HTTPRequest
 
 const BASE_GAMEJOLT_API_URL: String = 'https://api.gamejolt.com/api/game/v1_2'
 
-export var private_key: String
-export var game_id: String
-export var auto_batch := true # Merge queued requests in one batch
-export var verbose: bool = false
+@export var private_key: String
+@export var game_id: String
+@export var auto_batch := true # Merge queued requests in one batch
+@export var verbose: bool = false
 
 signal gamejolt_request_completed(type,message)
 
@@ -47,11 +47,11 @@ func get_user_token():
 func auto_auth():
 	#get username and token form url on gamejolt (only work with html5)
 	#For Godot debugging, add this in your url : ?gjapi_username=<yourusername>&gjapi_token=<yourtoken>
-	JavaScript.eval('var urlParams = new URLSearchParams(window.location.search);',true)
-	var tmp = JavaScript.eval('urlParams.get("gjapi_username")', true)
+	JavaScriptBridge.eval('var urlParams = new URLSearchParams(window.location.search);',true)
+	var tmp = JavaScriptBridge.eval('urlParams.get("gjapi_username")', true)
 	if tmp is String:
 		username_cache = tmp
-		tmp = JavaScript.eval('urlParams.get("gjapi_token")', true)
+		tmp = JavaScriptBridge.eval('urlParams.get("gjapi_token")', true)
 		if tmp is String:
 			token_cache = tmp
 			_call_gj_api('/users/auth/', {user_token = token_cache, username = username_cache})
@@ -209,7 +209,7 @@ func batch_request(requests:Array,parallel:bool=true,break_on_error:bool=false):
 # private
 
 func _ready():
-	connect("request_completed", self, '_on_HTTPRequest_request_completed')
+	connect("request_completed", _on_HTTPRequest_request_completed)
 
 func _call_gj_api(type:String, parameters:Dictionary, sub_types:Array = []):
 	var request_error := OK
@@ -217,7 +217,7 @@ func _call_gj_api(type:String, parameters:Dictionary, sub_types:Array = []):
 		request_error = ERR_BUSY
 		if auto_batch and type != '/batch/':
 			var url:String = _compose_url(type, parameters, true)
-			if queue.empty() or queue.back().type != '/batch/' or queue.back().sub_types.size()>=50:
+			if queue.front() == null or queue.back().type != '/batch/' or queue.back().sub_types.size()>=50:
 				queue.push_back(Request.new('/batch/',{requests = [url]},[type]))
 			else:
 				queue.back().parameters.requests.push_back(url)
@@ -274,8 +274,9 @@ func _on_HTTPRequest_request_completed(result, response_code, headers, response_
 		
 		if verbose:
 			_verbose(body)
-			
-		var json_result = JSON.parse(body)
+		
+		var json = JSON.new()
+		var json_result = json.parse(body)
 		var response:Dictionary = {}
 		if json_result.error == OK:
 			response = json_result.result.get('response',{})
@@ -290,7 +291,7 @@ func _on_HTTPRequest_request_completed(result, response_code, headers, response_
 		
 	busy = false
 	
-	if !queue.empty():
+	if not queue.front() == 0:
 		var request_queued :Request = queue.pop_front()
 		_call_gj_api(request_queued.type, request_queued.parameters, request_queued.sub_types)
 
